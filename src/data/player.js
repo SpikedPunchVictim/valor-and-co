@@ -1,6 +1,7 @@
 import { Wallet } from '@/data/wallet'
 import { Champion } from '@/data/champion'
-import { Scenario } from '@/data/scenario'
+import { Scenario, ScenarioRunner } from '@/data/scenario/index'
+import { RewardHub } from '@/data/rewards'
 
 export class Player {
    constructor() {
@@ -37,22 +38,6 @@ export class Player {
    //    })
    // }
 
-   startScenario(scenario, champions) {
-      if(scenario.isRunning) {
-         return
-      }
-
-      scenario.startRun(champions)
-   }
-
-   stopScenario(scenario) {
-      if(!scenario.isRunning) {
-         return
-      }
-
-      scenario.stopRun()
-   }
-
    toJSON() {
       return {
          champions: this.champions,
@@ -68,4 +53,18 @@ export class Player {
       player.wallet = obj.wallet
       return player
    }
+}
+
+// TODO: Move this
+let RewardManager = null
+export function startSystem(player) {
+   RewardManager = new RewardHub(player)
+
+   // Start Scenarios
+   player.scenarios.forEach(scenario => {
+      if(scenario.run != null) {
+         let runner = ScenarioRunner.create(scenario, scenario.run.champions)
+         runner.begin()
+      }
+   })
 }

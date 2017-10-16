@@ -1,5 +1,5 @@
 import * as types from './mutation-types'
-import { Scenario, ScenarioRun, RunState } from '@/data/scenario'
+import { Scenario, ScenarioRun, RunState } from '@/data/scenario/index'
 import { Timer } from '@/data/timer'
 
 export const init = ({ commit, state }) => {
@@ -17,6 +17,7 @@ export const generateChampion = ({ commit }, type) => {
 
 //------------------------------------------------------------------------
 export const startScenario = ({ commit, state }, { scenario, champions }) => {
+   console.log('starting')
    Scenario.start(scenario, champions)
    commit(types.PLAYER_START_SCENARIO, { scenario, champions })   
 }

@@ -71,7 +71,7 @@
                class="progress-bar"
                :stroke-width="2"
                :show-text="false"
-               :width="20"
+               :width="18"
                :percentage="getSceneProgress(colIndex - 1)">
             </el-progress>
          </el-col>
@@ -81,7 +81,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { Scenario } from '@/data/scenario'
+import { Scenario } from '@/data/scenario/index'
 
 let ColumnsPerRow = 10
 
@@ -97,9 +97,8 @@ export default {
    },
    mounted: function() {
       if(this.scenario != null && Scenario.isRunning(this.scenario)) {
-         console.log('Attempting to resume scenario')
-         console.dir(this.scenario)
-         this.startScenario({ scenario: this.scenario, champions: this.getScenarioChampions(this.scenario) })
+         this.champions = this.getScenarioChampions(this.scenario)
+         this.startScenario({ scenario: this.scenario, champions: this.champions })
       }
    },
    methods: {
@@ -109,9 +108,6 @@ export default {
       },
       onStopScenario: function(scenario) {
          this.stopScenario(scenario)
-      },
-      onSetupScenario: function() {
-
       },
       getRowCount: function() {
          console.log(`Row Count: ${Math.ceil(this.scenario.sceneCount / 10)}`)
@@ -155,7 +151,7 @@ export default {
 
          let step = (rowIndex * ColumnsPerRow) + colIndex
 
-         console.log(`[${this.scenario.run.sceneIndex}] rowIndex: ${rowIndex}  colIndex: ${colIndex}  step: ${step} `)
+         //console.log(`[${this.scenario.run.sceneIndex}] rowIndex: ${rowIndex}  colIndex: ${colIndex}  step: ${step} `)
          
          if(step < this.scenario.run.sceneIndex) {
             return 'cell-visited'
@@ -171,7 +167,9 @@ export default {
          console.log('scenario changed')
          if(Scenario.isRunning(newScenario)) {
             console.log('Attempting to resume scenario')
-            this.startScenario(scenario, this.getScenarioChampions(scenario))
+            let champs = this.getScenarioChampions(scenario)
+            this.champions = champs
+            this.startScenario(scenario, champs)
          }
       }
    },

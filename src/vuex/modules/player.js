@@ -1,10 +1,11 @@
 import * as types from '../mutation-types'
 import Vue from 'vue'
-import { Player } from '@/data/player'
+import { Player, startSystem } from '@/data/player'
 import { CreatureTypes } from '@/data/creature'
 import { inspect } from '@/data/debug'
-import { Scenario, ScenarioTypes, ScenarioLifetime } from '@/data/scenario'
+import { Scenario, ScenarioTypes, ScenarioLifetime } from '@/data/scenario/index'
 import { Wallet } from '@/data/wallet'
+import events from '@/data/events'
 
 const state = {
    player: null
@@ -18,9 +19,16 @@ const mutations = {
          state.player = createNewPlayer()
          saveState()
       } else {
-         //console.dir(player)
          state.player = Player.fromJSON(JSON.parse(player))
-      }   
+      }
+
+      startSystem(state.player)
+      events.on('scenario.sceneprogressed', saveState)
+      events.on('scenario.completed', saveState)
+   },
+
+   [types.PLAYER_SAVE](state) {
+      saveState()
    },
 
    [types.PLAYER_ADD_CHAMPION](state, { champion }) {
