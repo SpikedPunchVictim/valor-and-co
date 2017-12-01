@@ -16,7 +16,7 @@
       <coffers class="header"></coffers>
       <el-row :gutter="5">
          <!-- Left Side -->
-         <el-col :span="10">
+         <el-col :span="7">
             <component
                :is="championArea"
                class="champion-area"
@@ -29,6 +29,9 @@
             <scenario-view v-if="showScenarios"></scenario-view>
          </el-col>
       </el-row>
+      <el-row>
+         <el-col :span="24"><summoners></summoners></el-col>
+      </el-row>
    </div>
 </template>
 
@@ -38,6 +41,7 @@ import SelectChampion from '@/components/SelectChampion'
 import Coffers from '@/components/Coffers'
 import ChampionView from '@/components/ChampionView'
 import ScenarioView from '@/components/Scenario/ScenarioView'
+import SummonersView from '@/components/Summoners'
 
 const GameState = {
    None: 'None',
@@ -84,7 +88,8 @@ export default {
       ChampionView,
       'coffers': Coffers,
       'scenario-view': ScenarioView,
-      'select-champion': SelectChampion
+      'select-champion': SelectChampion,
+      'summoners': SummonersView
    }
 }
 

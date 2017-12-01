@@ -1,3 +1,4 @@
+import uuid from 'uuid/v4'
 import { randomInt } from '@/data/random'
 
 export const ChampionTypes = {
@@ -45,11 +46,12 @@ export const ChampionTypes = {
    }
 }
 
-export class Champion {
+export default class Champion {
    constructor(name, type) {
       this.name = name
       this.type = type
       this.level = 1
+      this.uuid = uuid()
 
       let champ = ChampionTypes[type]
       this.stats = {}
@@ -77,7 +79,7 @@ export class Champion {
       this.accessories.waist = null
    }
 
-   static fromJSON(obj) {
+   static fromJSON(obj, player) {
       let champion = new Champion(obj.name, obj.type)
       champion.level = obj.level
       champion.stats = obj.stats

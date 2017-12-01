@@ -23,16 +23,14 @@
 </style>
 
 <template>
-   <div>
-      <div class="map">
-         <el-card>
-            <el-carousel v-if="hasScenarios" :interval="0">
-               <el-carousel-item v-for="scenario, index in scenarios" :key="index">
-                  <scenario-map :scenario="scenario"></scenario-map>
-               </el-carousel-item>
-            </el-carousel>
-         </el-card>
-      </div>
+   <div class="map">
+      <el-card>
+         <el-carousel v-if="hasScenarios" :interval="0">
+            <el-carousel-item v-for="scenario, index in scenarios" :key="index">
+               <scenario-map :scenario="scenario"></scenario-map>
+            </el-carousel-item>
+         </el-carousel>
+      </el-card>
    </div>
 </template>
 
@@ -58,7 +56,7 @@ export default {
    },
    methods: {
       hasScenarios: function() {
-         return this.scenarios != null && this,scenarios.length > 0
+         return this.scenarios != null && this.scenarios.length > 0
       }
       // ...mapActions(['startScenario', 'stopScenario']),
       // onStartScenario: function(scenario) {

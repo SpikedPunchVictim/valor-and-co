@@ -1,11 +1,12 @@
 import * as types from '../mutation-types'
 import Vue from 'vue'
-import { Player, startSystem } from '@/data/player'
-import { CreatureTypes } from '@/data/creature'
+import Player from '@/data/player'
+import { Creatures } from '@/data/creature'
 import { inspect } from '@/data/debug'
-import { Scenario, ScenarioTypes, ScenarioLifetime } from '@/data/scenario/index'
+import { Scenario, Scenarios, ScenarioTypes, ScenarioLifetime } from '@/data/scenario/index'
 import { Wallet } from '@/data/wallet'
 import events from '@/data/events'
+import { load as serializeLoad } from '@/data/serialize'
 
 const state = {
    player: null
@@ -14,17 +15,12 @@ const state = {
 const mutations = {
    [types.PLAYER_INIT](state) {
       let player = Vue.storage.get('player', null)
-
-      if(player == null) {
-         state.player = createNewPlayer()
-         saveState()
-      } else {
-         state.player = Player.fromJSON(JSON.parse(player))
-      }
-
-      startSystem(state.player)
+      
+      state.player = serializeLoad(player)
       events.on('scenario.sceneprogressed', saveState)
       events.on('scenario.completed', saveState)
+
+      saveState()
    },
 
    [types.PLAYER_SAVE](state) {
@@ -69,12 +65,7 @@ function createNewPlayer() {
    player.wallet.gold = 0
 
    // All players have the sewer scenario
-   let scenario = new Scenario(ScenarioTypes.Sewer)
-   scenario.name = "The Angry Sewer Rats"
-   scenario.lifetime = ScenarioLifetime.RunForever
-   Scenario.addCreature(scenario, CreatureTypes.Rat)
-   Scenario.generate(scenario)
-   player.scenarios.push(scenario)
+   player.scenarios.push(Scenarios.SewerRats)
    return player
 }
 

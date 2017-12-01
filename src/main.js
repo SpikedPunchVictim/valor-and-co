@@ -6,7 +6,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import VueLocalStorage from 'vue-localstorage'
 
-import 'element-ui/lib/theme-default/index.css'
+import 'element-ui/lib/theme-chalk/index.css'
 import 'element-ui/lib/index.js'
 
 Vue.config.productionTip = false

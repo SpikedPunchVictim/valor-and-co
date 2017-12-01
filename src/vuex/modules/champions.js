@@ -3,7 +3,8 @@ import superb from 'superb'
 import catNames from 'cat-names'
 import capitalize from 'lodash.capitalize'
 import { randomInt } from '@/data/random'
-import { ChampionTypes, Champion } from '@/data/champion'
+import { ChampionTypes } from '@/data/champion'
+import Champion from '@/data/champion'
 
 function createChampion(type) {
    return new Champion(`${capitalize(superb())} ${catNames.random()}`, type)

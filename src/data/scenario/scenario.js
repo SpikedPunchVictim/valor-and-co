@@ -3,7 +3,7 @@ import { pullRandom } from '@/data/random'
 import range from 'lodash.range'
 import awful from 'awful'
 import { Creature } from '@/data/creature'
-import { ScenarioRunner } from '@/data/scenario/index'
+import { ScenarioProgress, ScenarioRunner } from '@/data/scenario/index'
 
 /*------------------------------------------------------------------------*/
 export const RunState = { }
@@ -53,7 +53,7 @@ export class Scenario {
       this.creatures = []
       this.items = []
 
-      this.run = null
+      this.onComplete = null
    }
 
    toJSON() {
@@ -66,12 +66,11 @@ export class Scenario {
          creatureStats: this.creatureStats,
          scenes: this.scenes,
          creatures: this.creatures,
-         items: this.items,
-         run: this.run
+         items: this.items
       }      
    }
 
-   static fromJSON(obj) {
+   static fromJSON(obj, player) {
       let scenario = new Scenario(obj.type)
       scenario.lifetime = obj.lifetime
       scenario.name = obj.name
@@ -81,26 +80,41 @@ export class Scenario {
       scenario.scenes = obj.scenes
       scenario.creatures = obj.creatures
       scenario.items = obj.items
-      scenario.run = obj.run
       return scenario
    }
 
+   /*---------------------------------------------------------------------
+    * Determines if a scenario is Running
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static isRunning(scenario) {
       return ScenarioRunner.isRunning(scenario)
    }
 
+   /*---------------------------------------------------------------------
+    * Determines if a scenario has been Stopped
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static isStopped(scenario) {
       return ScenarioRunner.isStopped(scenario)
    }
 
+   /*---------------------------------------------------------------------
+    * Determines if a scenario has been Completed
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static isCompleted(scenario) {
       return ScenarioRunner.isCompleted(scenario)
    }
 
-   static champions(scenario) {
-      return scenario.run == null ? [] : scenario.run.champions
-   }
-
+   /*---------------------------------------------------------------------
+    * Add a creature to a scenario
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static addCreature(scenario, type) {
       if(scenario.creatures.indexOf(type) >= 0) {
          return
@@ -109,6 +123,11 @@ export class Scenario {
       scenario.creatures.push(type)
    }
 
+   /*---------------------------------------------------------------------
+    * Add an item to a scenario
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static addItem(scenario, type) {
       if(scenario.items.indexOf(type) >= 0) {
          return
@@ -117,6 +136,11 @@ export class Scenario {
       scenario.items.push(type)
    }
 
+   /*---------------------------------------------------------------------
+    * Generate the scenario based on the properties that have been set
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static generate(scenario) {
       // Setup the rooms
       scenario.scenes = []
@@ -148,6 +172,11 @@ export class Scenario {
       }   
    }
 
+   /*---------------------------------------------------------------------
+    * Start a scenario 
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static start(scenario, champions) {
       console.dir(scenario)
       if(Scenario.isRunning(scenario)) {
@@ -169,11 +198,12 @@ export class Scenario {
       return runner.start()
    }
 
+   /*---------------------------------------------------------------------
+    * Stop a scenario
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static stop(scenario) {
-      if(scenario.run == null) {
-         return
-      }
-
       let runner = ScenarioRunner.get(scenario)
 
       if(runner == null) {
@@ -183,6 +213,11 @@ export class Scenario {
       return runner.stop()
    }
 
+   /*---------------------------------------------------------------------
+    * Continue a scenario that was once started
+    *
+    * @param {Scenario} scenario 
+    *-------------------------------------------------------------------*/
    static continue(scenario) {
       if(Scenario.isRunning(scenario)) {
          return

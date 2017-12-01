@@ -1,5 +1,6 @@
 import events from '@/data/events'
 import { subscribe, unsubscribe, Timer } from '@/data/timer'
+import { ScenarioProgress } from '@/data/scenario/scenario-progress'
 import { RunState } from '@/data/scenario/scenario'
 //import { inspect } from '@/data/debug'
 
@@ -9,13 +10,21 @@ let RunnerMap = new Map()
  * Represents the running state, as it progresses
  */
 export class ScenarioRunner {
-   constructor(run) {
-      if(run == null) {
-         throw new Error('run must be valid')
+   constructor(progress) {
+      if(progress == null) {
+         throw new Error('progress must be valid')
       }
 
-      this.run = run
+      this.progress = progress
       this._nextHandler = this._next.bind(this)
+   }
+
+   get scenario() {
+      return this.progress == null ? null : this.progress.scenario
+   }
+
+   get champions() {
+      return this.progress == null ? [] : this.progress.champions
    }
 
    //------------------------------------------------------------------------
@@ -28,12 +37,8 @@ export class ScenarioRunner {
       let found = RunnerMap.get(scenario.uuid)
       
       if(found === undefined) {
-         // Preserve any initial state
-         if(scenario.run == null) {
-            scenario.run = new ScenarioRun(scenario.sceneCount, champions)
-         }
-
-         found = new ScenarioRunner(scenario.run)
+         let progress = new ScenarioProgress(scenario, champions)
+         found = new ScenarioRunner(progress)
          RunnerMap.set(scenario.uuid, found)
       }
    
@@ -71,54 +76,56 @@ export class ScenarioRunner {
     * Start after being reloaded from a saved state
     *-------------------------------------------------------------------*/
    begin() {
-      if(this.run.state == RunState.Running) {
+      if(this.progress.state == RunState.Running) {
          return Timer.add(this._nextHandler)
       }
    }
 
    //------------------------------------------------------------------------
    start() {
-      if(this.run.state == RunState.Running) {
+      if(this.progress.state == RunState.Running) {
          return
       }
 
-      if(this.run.state == RunState.Completed) {
+      if(this.progress.state == RunState.Completed) {
          this.reset()
       }
 
-      this.run.state = RunState.Running
+      this.progress.state = RunState.Running
       Timer.add(this._nextHandler)
    }
 
    //------------------------------------------------------------------------
    reset() {
-      this.run.step = 0
-      this.run.sceneIndex = 0
+      this.progress.step = 0
+      this.progress.sceneIndex = 0
    }
 
    //------------------------------------------------------------------------
    start() {
-      if(this.run.state == RunState.Running) {
+      if(this.progress.state == RunState.Running) {
          return
       }
 
-      if(this.run.state == RunState.Completed) {
+      if(this.progress.state == RunState.Completed) {
          this.reset()
       }
 
-      this.run.state = RunState.Running
+      this.progress.state = RunState.Running
       Timer.add(this._nextHandler)
+      return this
    }
 
    //------------------------------------------------------------------------
    stop() {
       Timer.remove(this._nextHandler)
-      this.run.state = RunState.Stopped
+      this.progress.state = RunState.Stopped
+      return this
    }
 
    //------------------------------------------------------------------------
    continue() {
-      if(this.run.state == RunState.Completed) {
+      if(this.progress.state == RunState.Completed) {
          return
       }
 
@@ -127,20 +134,20 @@ export class ScenarioRunner {
 
    //------------------------------------------------------------------------
    _next() {
-      console.log(`Scene Index (${this.run.step} / ${this.run.stepsPerProgress}): ${this.run.sceneIndex}`)
+      console.log(`Scene Index (${this.progress.step} / ${this.progress.stepsPerProgress}): ${this.progress.sceneIndex}`)
 
-      if(this.run.step < this.run.stepsPerProgress) {
-         this.run.step++
+      if(this.progress.step < this.progress.stepsPerProgress) {
+         this.progress.step++
          return
       }
 
-      this.run.step = 0
-      this.run.sceneIndex++
+      this.progress.step = 0
+      this.progress.sceneIndex++
       events.emit('scenario.sceneprogressed', this)
 
-      if(this.run.sceneIndex > this.run.sceneCount) {
+      if(this.progress.sceneIndex > this.progress.sceneCount) {
          this.stop()
-         this.run.state = RunState.Completed
+         this.progress.state = RunState.Completed
          events.emit('scenario.completed', this)      
          return
       }

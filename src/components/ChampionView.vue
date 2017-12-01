@@ -2,6 +2,8 @@
 
 .stats {
    margin-top: 5px;
+   /* width: 90vw;
+   text-align: center; */
 }
 
 .level-tag {

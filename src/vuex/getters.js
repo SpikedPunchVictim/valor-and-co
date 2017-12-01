@@ -1,3 +1,5 @@
+import { Scenario } from '@/data/scenario'
+
 export const championTypes = state => state.champions.types
 export const generateChampion = state => type => state.champions.generateChampion(type)
 export const wallet = state => state.player.player == null ? null : state.player.player.wallet
@@ -6,22 +8,22 @@ export const champions = state => state.player.player == null ? [] : state.playe
 //------------------------------------------------------------------------
 export const availableChampions = state => {
    let player = state.player.player
-   let scenarios = player.scenarios
+   let runs = player.scenarioRuns
    let champions = player.champions
 
-   let unavailable = scenarios
-      .filter(sc => sc.isRunning || sc.isStopped)
-      .reduce((set, sc) => {
-         sc.champions.forEach(ch => set.add(ch))
+   // List of champion uuids in use
+   let unavailable = runs
+      .reduce((set, run) => {
+         run.champions.forEach(ch => set.add(ch))
          return set
       }, new Set())
 
    unavailable = Array.from(unavailable)
 
    return champions
-      .map(ch => ch.name)
+      .map(ch => ch.uuid)
       .filter(ch => unavailable.indexOf(ch) < 0)
-      .map(name => champions.find(ch => ch.name == name))
+      .map(uuid => champions.find(ch => ch.uuid == uuid))
 }
 
 //------------------------------------------------------------------------

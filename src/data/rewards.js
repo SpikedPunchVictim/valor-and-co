@@ -4,8 +4,10 @@ export class RewardHub {
    constructor(player) {
       this.player = player
 
-      events.on('scenario.completed', scenario => {
-         player.wallet.gold += 3
-      })
+      events.on('scenario.completed', this.onScenarioRewarded)
+   }
+
+   onScenarioRewarded(scenario) {
+      this.player.wallet.gold += 3
    }
 }

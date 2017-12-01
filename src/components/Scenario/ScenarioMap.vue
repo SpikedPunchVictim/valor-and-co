@@ -4,6 +4,10 @@
    margin-left: 2px;
 }
 
+.unmet-requirements {
+   color: red;
+}
+
 .cell-not-visited {
    background: lightskyblue;
    border-radius: 3px;
@@ -37,12 +41,17 @@
 <template>
    <div>
       <h3>{{ scenario.name }}</h3>
-      <el-row :gutter="3">
+      <!-- <div v-if="canRunMap == false" class="unmet-requirements"><b>Requirements not met</b></div> -->
+      <el-row :gutter="3" v-if="isScenarioRunning == false">
          <el-col :span="12">
-         <el-select v-model="champions" multiple placeholder="Champions" class="option-button">
+         <el-select
+            v-model="selectedChampions"            
+            multiple
+            placeholder="Champions"
+            class="option-button">
             <el-option
                v-for="champion in availableChampions"
-               :key="champion.name"
+               :key="champion.uuid"
                :label="champion.name"
                :value="champion.name">
             </el-option>
@@ -53,7 +62,7 @@
                :disabled="!canRunMap"
                @click="onStartScenario"
                class="option-button"
-               type="info">Start
+               type="info">Ready
             </el-button>
          </el-col>
       </el-row>
@@ -92,19 +101,19 @@ export default {
    },
    data() {
       return {
-         champions: []
+         selectedChampions: []
       }
    },
    mounted: function() {
       if(this.scenario != null && Scenario.isRunning(this.scenario)) {
-         this.champions = this.getScenarioChampions(this.scenario)
-         this.startScenario({ scenario: this.scenario, champions: this.champions })
+         //this.champions = this.getScenarioChampions(this.scenario)
+         this.startScenario({ scenario: this.scenario, champions: this.selectedChampions })
       }
    },
    methods: {
       ...mapActions(['startScenario', 'stopScenario', 'continueScenario']),
       onStartScenario: function() {
-         this.startScenario({ scenario: this.scenario, champions: this.champions })
+         this.startScenario({ scenario: this.scenario, champions: this.selectedChampions })
       },
       onStopScenario: function(scenario) {
          this.stopScenario(scenario)
@@ -168,7 +177,7 @@ export default {
          if(Scenario.isRunning(newScenario)) {
             console.log('Attempting to resume scenario')
             let champs = this.getScenarioChampions(scenario)
-            this.champions = champs
+            //this.champions = champs
             this.startScenario(scenario, champs)
          }
       }
@@ -176,8 +185,17 @@ export default {
    computed: {
       ...mapGetters(['player', 'scenarios', 'availableChampions', 'getScenarioChampions']),
       canRunMap: function() {
-         return this.champions.length > 0
+         return this.selectedChampions.length > 0
       },
+      hasChampionsAssigned: function() {
+         return this.selectedChampions.length > 0
+      },
+      isScenarioRunning: function() {
+         return Scenario.isRunning(this.scenario)
+      },
+      // champions: function() {
+      //    return this.getScenarioChampions(this.scenario)
+      // }
       // availableChampions: function() {
       //    let busyChamps = this.scenarios.reduce((result, scenario) => {
       //       if(scenario.isRunning) {
